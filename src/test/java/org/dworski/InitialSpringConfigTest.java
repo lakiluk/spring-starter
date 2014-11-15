@@ -1,34 +1,40 @@
 package org.dworski;
 
+import org.dworski.dao.CarDao;
+import org.dworski.entity.Car;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = InitialSpringConfig.class, loader = AnnotationConfigContextLoader.class)
+@ContextConfiguration(classes = SpringConfig.class, loader = AnnotationConfigContextLoader.class)
+@Transactional
 public class InitialSpringConfigTest {
 
     @Autowired
-    private Car car;
+    private CarDao carDao;
 
-    @Value("${car.make}")
-    private String carMake;
-
-    @Value("${car.productionYear}")
-    private String carProductionYear;
 
     @Test
     public void shouldGetCarObjectFromContext() {
-        assertNotNull(car);
-        assertEquals(carMake, car.getMake());
-        assertEquals(carProductionYear, String.valueOf(car.getProductionYear()));
+        Car car = new Car();
+        car.setMake("SEAT");
+        car.setProductionYear(2010);
+        carDao.save(car);
+
+        Car loadedCar = carDao.load(car.getId());
+
+        assertEquals(car.getId(), loadedCar.getId());
+        assertEquals(car.getMake(), loadedCar.getMake());
+        assertEquals(car.getProductionYear(), loadedCar.getProductionYear());
+
     }
 
 }
