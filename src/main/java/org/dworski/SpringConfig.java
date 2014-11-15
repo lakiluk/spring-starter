@@ -20,7 +20,7 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 @PropertySource("classpath:/org/dworski/db.properties")
-@ComponentScan({"org.dworski.dao", "org.dworski.service"})
+@ComponentScan({"org.dworski.dao"})
 public class SpringConfig {
 
     @Autowired
