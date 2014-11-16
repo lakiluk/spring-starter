@@ -1,23 +1,24 @@
 package org.dworski.dao;
 
 import org.dworski.entity.Car;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Repository
 public class CarDaoImpl implements CarDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public void save(Car car) {
-        sessionFactory.getCurrentSession().save(car);
+        entityManager.persist(car);
     }
 
     @Override
     public Car load(Long id) {
-        return (Car) sessionFactory.getCurrentSession().load(Car.class, id);
+        return entityManager.find(Car.class, id);
     }
 }

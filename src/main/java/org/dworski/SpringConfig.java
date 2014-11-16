@@ -1,6 +1,6 @@
 package org.dworski;
 
-import org.hibernate.SessionFactory;
+import org.hibernate.ejb.HibernatePersistence;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -9,9 +9,9 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate3.HibernateTransactionManager;
-import org.springframework.orm.hibernate3.LocalSessionFactoryBean;
-import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
@@ -27,15 +27,16 @@ public class SpringConfig {
     private Environment environment;
 
     @Bean
-    public LocalSessionFactoryBean sessionFactoryBean() {
-        AnnotationSessionFactoryBean sessionFactoryBean = new AnnotationSessionFactoryBean();
-        sessionFactoryBean.setDataSource(dataSource());
-        sessionFactoryBean.setHibernateProperties(hibernateProperties());
-        sessionFactoryBean.setPackagesToScan(new String[]{"org.dworski.entity"});
-        return sessionFactoryBean;
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryBean() {
+        LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+        entityManagerFactoryBean.setDataSource(dataSource());
+        entityManagerFactoryBean.setPersistenceProvider(new HibernatePersistence());
+        entityManagerFactoryBean.setPackagesToScan("org.dworski.entity");
+        entityManagerFactoryBean.setJpaProperties(hibernateProviderProperties());
+        return entityManagerFactoryBean;
     }
 
-    private Properties hibernateProperties() {
+    private Properties hibernateProviderProperties() {
         Properties properties = new Properties();
         properties.setProperty("hibernate.hbm2ddl.auto", environment.getProperty("hibernate.hbm2ddl.auto"));
         properties.setProperty("hibernate.dialect", environment.getProperty("hibernate.dialect"));
@@ -53,11 +54,8 @@ public class SpringConfig {
     }
 
     @Bean
-    @Autowired
-    public HibernateTransactionManager transactionManager(SessionFactory sessionFactory) {
-        HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        transactionManager.setSessionFactory(sessionFactory);
-        return transactionManager;
+    public PlatformTransactionManager transactionManager() {
+        return new JpaTransactionManager(entityManagerFactoryBean().getObject());
     }
 
     @Bean
