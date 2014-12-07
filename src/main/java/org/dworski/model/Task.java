@@ -1,9 +1,17 @@
 package org.dworski.model;
 
+
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+
 public class Task {
 
+    @NotNull
     private int id;
+    @NotEmpty(message = "{task.title.required}")
     private String title;
+    @NotEmpty(message = "{task.priority.required}")
     private String priority;
 
     public Task() {

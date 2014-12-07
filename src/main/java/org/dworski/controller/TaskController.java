@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -47,11 +49,15 @@ public class TaskController {
     }
 
     @RequestMapping(value = "/submit", method = RequestMethod.POST)
-    public String submit(@ModelAttribute("task") Task task) {
+         public String submit(@ModelAttribute("task")  @Valid Task task, BindingResult result) {
         if (task.getId() == 0) {
             task.setId(tasks.size() + 1);
         }
-        tasks.put(task.getId(), task);
+        if (result.hasErrors()) {
+            return "edit";
+        } else {
+            tasks.put(task.getId(), task);
+        }
         return "redirect:/";
     }
 

@@ -6,3 +6,12 @@
 .tasksTable{
     border-collapse: collapse;
 }
+
+.taskform div {
+    clear: both;
+    float: left;
+}
+
+.errorMessage{
+    color: red;
+}
