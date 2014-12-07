@@ -1,38 +1,37 @@
 package org.dworski.controller;
 
 import org.dworski.model.Task;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 @Controller
 @SessionAttributes("priorities")
 public class TaskController {
 
+    @Autowired
+    private MessageSource messageSource;
+
     private Map<Integer, Task> tasks = new LinkedHashMap<Integer, Task>();
 
-    private static final Map<String, String> priorities = new LinkedHashMap<String, String>();
-
-    public TaskController() {
-        priorities.put("1", "High");
-        priorities.put("2", "Medium");
-        priorities.put("3", "Low");
-    }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String tasks(Model model) {
         model.addAttribute("tasks", tasks.values());
-        model.addAttribute("priorities", priorities);
         return "tasks";
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.GET)
-    public String add(Model model) {
+    public String add(Model model, Locale locale) {
         Task task = new Task();
         model.addAttribute("task", task);
+        model.addAttribute("priorities", buildPrioritiesDictionary(Locale.ENGLISH));
         return "edit";
     }
 
@@ -45,7 +44,6 @@ public class TaskController {
             model.addAttribute("task", task);
             return "edit";
         }
-
     }
 
     @RequestMapping(value = "/submit", method = RequestMethod.POST)
@@ -55,5 +53,13 @@ public class TaskController {
         }
         tasks.put(task.getId(), task);
         return "redirect:/";
+    }
+
+    private Map<String, String> buildPrioritiesDictionary(Locale locale) {
+        Map<String, String> priorities = new LinkedHashMap<String, String>();
+        priorities.put("1", messageSource.getMessage("task.priority.high", null, locale));
+        priorities.put("2", messageSource.getMessage("task.priority.medium", null, locale));
+        priorities.put("3", messageSource.getMessage("task.priority.low", null, locale));
+        return priorities;
     }
 }
