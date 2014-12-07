@@ -31,7 +31,7 @@ public class TaskController {
     public String add(Model model, Locale locale) {
         Task task = new Task();
         model.addAttribute("task", task);
-        model.addAttribute("priorities", buildPrioritiesDictionary(Locale.ENGLISH));
+        model.addAttribute("priorities", buildPrioritiesDictionary(locale));
         return "edit";
     }
 
