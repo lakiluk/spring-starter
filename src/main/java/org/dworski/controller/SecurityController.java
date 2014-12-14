@@ -6,13 +6,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class SecurityController {
 
-    @RequestMapping(value = {"/login", "/"})
+    @RequestMapping("/login")
     public String login() {
         return "login";
     }
 
-    @RequestMapping("/home")
+    @RequestMapping(value = {"/home", "/"})
     public String home() {
         return "home";
+    }
+
+    @RequestMapping("/admin")
+    public String admin() {
+        return "admin";
     }
 }
