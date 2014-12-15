@@ -2,8 +2,10 @@ package org.dworski;
 
 import org.dworski.service.auth.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -11,16 +13,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @EnableWebSecurity
-@ComponentScan("org.dworski.service.auth")
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
-    private UserService userService;
-
 
     @Override
     public void configure(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(userService);
+        builder.userDetailsService(userService()).passwordEncoder(passwordEncoder());
+    }
+
+    @Bean
+    public ShaPasswordEncoder passwordEncoder() {
+        return new ShaPasswordEncoder(256);
+    }
+
+    @Bean
+    public UserService userService() {
+        return new UserService();
     }
 
     @Override
