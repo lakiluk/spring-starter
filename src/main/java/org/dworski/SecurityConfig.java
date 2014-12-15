@@ -1,10 +1,10 @@
 package org.dworski;
 
 import org.dworski.service.auth.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.dao.ReflectionSaltSource;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,8 +17,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(AuthenticationManagerBuilder builder) throws Exception {
-        builder.userDetailsService(userService()).passwordEncoder(passwordEncoder());
+        builder.authenticationProvider(createDaoAuthenticationProvider());
     }
+
+    @Bean
+    public DaoAuthenticationProvider createDaoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setSaltSource(saltSource());
+        provider.setUserDetailsService(userDetailsService());
+        return provider;
+    }
+
 
     @Bean
     public ShaPasswordEncoder passwordEncoder() {
@@ -26,8 +36,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public UserService userService() {
+    public UserService userDetailsService() {
         return new UserService();
+    }
+
+    @Bean
+    public ReflectionSaltSource saltSource() {
+        ReflectionSaltSource reflectionSaltSource = new ReflectionSaltSource();
+        reflectionSaltSource.setUserPropertyToUse("username");
+        return reflectionSaltSource;
     }
 
     @Override

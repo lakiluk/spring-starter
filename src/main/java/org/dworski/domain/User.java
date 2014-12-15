@@ -12,8 +12,7 @@ public class User implements UserDetails {
     private List<GrantedAuthority> authorities;
     private String username;
 
-    public User(String username, String password, List<GrantedAuthority> authorities) {
-        this.password = password;
+    public User(String username, List<GrantedAuthority> authorities) {
         this.authorities = authorities;
         this.username = username;
     }
@@ -51,5 +50,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

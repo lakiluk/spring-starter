@@ -2,6 +2,7 @@ package org.dworski.service.auth;
 
 import org.dworski.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.dao.SaltSource;
 import org.springframework.security.authentication.encoding.ShaPasswordEncoder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,15 +24,26 @@ public class UserService implements UserDetailsService {
     @Autowired
     private ShaPasswordEncoder passwordEncoder;
 
+    @Autowired
+    private SaltSource saltSource;
+
     public UserService() {
         users = new ArrayList<User>();
     }
 
     @PostConstruct
     public void init() {
-        users.add(new User("admin", passwordEncoder.encodePassword("admin", null), Arrays.<GrantedAuthority>asList(new SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER"))));
-        users.add(new User("user", passwordEncoder.encodePassword("user", null), Arrays.<GrantedAuthority>asList(new SimpleGrantedAuthority("USER"))));
+        User user1 = new User("admin", Arrays.<GrantedAuthority>asList(new
+                SimpleGrantedAuthority("ADMIN"), new SimpleGrantedAuthority("USER")));
+        user1.setPassword(createPassword(user1, "admin"));
+        users.add(user1);
+
+        User user2 = new User("user", Arrays.<GrantedAuthority>asList(new
+                SimpleGrantedAuthority("USER")));
+        user2.setPassword(createPassword(user2, "user"));
+        users.add(user2);
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -40,5 +52,10 @@ public class UserService implements UserDetailsService {
                 return user;
         }
         throw new UsernameNotFoundException("Username " + username + " not found");
+    }
+
+    private String createPassword(User user, String password) {
+        Object salt = saltSource.getSalt(user);
+        return passwordEncoder.encodePassword(password, salt);
     }
 }
