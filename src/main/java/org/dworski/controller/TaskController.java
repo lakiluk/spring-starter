@@ -1,6 +1,7 @@
 package org.dworski.controller;
 
 import org.dworski.model.Task;
+import org.dworski.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
@@ -19,6 +20,9 @@ public class TaskController {
 
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private TaskService taskService;
 
     private Map<Integer, Task> tasks = new LinkedHashMap<Integer, Task>();
 
@@ -57,6 +61,7 @@ public class TaskController {
             return "edit";
         } else {
             tasks.put(task.getId(), task);
+            taskService.heavyweightOperation();
         }
         return "redirect:/";
     }
